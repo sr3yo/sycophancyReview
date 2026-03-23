@@ -5,7 +5,7 @@ const TILE_HEIGHT = 105;
 // Using simple, universally recognizable numbers and geometric shapes for 65+ demographic
 const SYMBOLS = ['1', '2', '3', '★', '●', '▲', '■', '♥', '♦'];
 // Unique colors for each symbol to make pairs visually distinct
-//Mahjong solitaire
+//Mahjong solitaire!
 const SYMBOL_COLORS = ['#e84393', '#27ae60', '#0984e3', '#d63031', '#2d3436', '#f39c12', '#e17055', '#8e44ad', '#d4af37'];
 
 let board = [];
