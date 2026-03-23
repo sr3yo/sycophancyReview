@@ -5,6 +5,7 @@ const TILE_HEIGHT = 105;
 // Using simple, universally recognizable numbers and geometric shapes for 65+ demographic
 const SYMBOLS = ['1', '2', '3', '★', '●', '▲', '■', '♥', '♦'];
 // Unique colors for each symbol to make pairs visually distinct
+//Mahjong solitaire
 const SYMBOL_COLORS = ['#e84393', '#27ae60', '#0984e3', '#d63031', '#2d3436', '#f39c12', '#e17055', '#8e44ad', '#d4af37'];
 
 let board = [];
@@ -34,7 +35,7 @@ function initGame() {
     gameBoard.innerHTML = '';
     tilesCountDisplay.textContent = tilesRemaining;
     modal.classList.add('hidden');
-    
+
     generateLayout();
     assignSymbols();
     renderBoard();
@@ -51,15 +52,15 @@ function initGame() {
 function scaleBoard() {
     const wrapper = document.getElementById('game-wrapper');
     if (!wrapper) return;
-    
+
     // Base reference resolution (laptop)
     const baseWidth = 1366;
     const baseHeight = 768;
-    
+
     const scaleX = window.innerWidth / baseWidth;
     const scaleY = window.innerHeight / baseHeight;
     const scale = Math.max(Math.min(scaleX, scaleY), 1.0);
-    
+
     wrapper.style.transform = `scale(${scale})`;
 }
 
@@ -70,7 +71,7 @@ function scaleBoard() {
 function generateLayout() {
     // Total tiles: 36
     // We will build a pyramid from the bottom up.
-    
+
     // Z=0 (Base layer) - 20 tiles arranged in a wide block or diamond
     // Let's do a block of 5 rows
     // Row 1: 2 tiles
@@ -84,7 +85,7 @@ function generateLayout() {
     // Row 5: 4 tiles (forming a base)
     for (let c = 2; c <= 5; c++) board.push(createTileObj(c, 5, 0));
     // Total Z=0 = 2 + 4 + 6 + 4 + 4 = 20
-    
+
     // Z=1 (Middle layer) - 12 tiles
     // Row 2: 2 tiles
     board.push(createTileObj(3, 2, 1)); board.push(createTileObj(4, 2, 1));
@@ -95,12 +96,12 @@ function generateLayout() {
     // Row 5: 2 tiles
     board.push(createTileObj(3, 5, 1)); board.push(createTileObj(4, 5, 1));
     // Total Z=1 = 2 + 4 + 4 + 2 = 12
-    
+
     // Z=2 (Top layer) - 4 tiles
     // Right in the center
     board.push(createTileObj(3.5, 3, 2));
     board.push(createTileObj(3.5, 4, 2));
-    
+
     // Let's make it 4 to complete 36. 
     // The top ridge of the pyramid
     board.push(createTileObj(3.5, 2.5, 2));
@@ -131,13 +132,13 @@ function assignSymbols() {
         // 4 copies each (2 pairs)
         symbolPool.push(tileData, tileData, tileData, tileData);
     }
-    
+
     // Shuffle the pool
     for (let i = symbolPool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [symbolPool[i], symbolPool[j]] = [symbolPool[j], symbolPool[i]];
     }
-    
+
     // Assign to tiles
     for (let i = 0; i < board.length; i++) {
         board[i].symbol = symbolPool[i].s;
@@ -157,20 +158,20 @@ function renderBoard() {
         el.style.color = tile.color;
         el.dataset.id = tile.id;
         el.dataset.z = tile.gz;
-        
+
         // Calculate absolute position
         // Each grid unit represents TILE_WIDTH / TILE_HEIGHT + spacing
         const left = offsetX + tile.gx * TILE_WIDTH;
         const top = offsetY + tile.gy * TILE_HEIGHT - (tile.gz * 5); // Shift up slightly for depth
-        
+
         el.style.left = `${left}px`;
         el.style.top = `${top}px`;
-        
+
         // Z-index implies visual stacking
         el.style.zIndex = tile.gz * 10;
-        
+
         el.addEventListener('click', () => handleTileClick(tile));
-        
+
         tile.element = el;
         gameBoard.appendChild(el);
     });
@@ -180,16 +181,16 @@ function showFloatingText(tile, text, type) {
     const textEl = document.createElement('div');
     textEl.className = `floating-text ${type}`;
     textEl.textContent = text;
-    
+
     // Position it securely on top of the tile
     const left = parseFloat(tile.element.style.left);
     const top = parseFloat(tile.element.style.top);
-    
+
     textEl.style.left = `${left + TILE_WIDTH / 2}px`;
     textEl.style.top = `${top - 20}px`;
-    
+
     gameBoard.appendChild(textEl);
-    
+
     // Remove after animation
     setTimeout(() => {
         textEl.remove();
@@ -200,14 +201,14 @@ function handleMatch(tile1, tile2) {
     isAnimating = true;
     tile1.element.classList.add('match-success');
     tile2.element.classList.add('match-success');
-    
+
     showFloatingText(tile1, "Match!", "success");
     showFloatingText(tile2, "Match!", "success");
-    
+
     tile1.active = false;
     tile2.active = false;
     selectedTile = null;
-    
+
     setTimeout(() => {
         removeTiles(tile1, tile2);
         isAnimating = false;
@@ -216,16 +217,16 @@ function handleMatch(tile1, tile2) {
 
 function handleMismatch(tile1, tile2) {
     isAnimating = true;
-    
+
     // Show both as selected momentarily to see what was clicked
     tile2.element.classList.add('selected');
-    
+
     tile1.element.classList.add('match-fail');
     tile2.element.classList.add('match-fail');
-    
+
     showFloatingText(tile1, "Not a match!", "fail");
     showFloatingText(tile2, "Not a match!", "fail");
-    
+
     setTimeout(() => {
         tile1.element.classList.remove('match-fail', 'selected');
         tile2.element.classList.remove('match-fail', 'selected');
@@ -236,21 +237,21 @@ function handleMismatch(tile1, tile2) {
 
 function handleTileClick(tile) {
     if (!tile.active || isAnimating) return;
-    
+
     // Clear any existing hints when interacting with the board
     board.forEach(t => t.element.classList.remove('hint'));
-    
+
     if (isBlocked(tile)) {
         tile.element.classList.add('error');
         setTimeout(() => tile.element.classList.remove('error'), 200);
         return;
     }
-    
+
     if (selectedTile === tile) {
         deselectTile();
         return;
     }
-    
+
     if (selectedTile) {
         if (selectedTile.symbol === tile.symbol) {
             handleMatch(selectedTile, tile);
@@ -276,21 +277,21 @@ function deselectTile() {
 
 function removeTiles(tile1, tile2) {
     // we already set active to false in handleMatch
-    
+
     // Animate removal
     tile1.element.style.opacity = '0';
     tile2.element.style.opacity = '0';
     tile1.element.style.pointerEvents = 'none';
     tile2.element.style.pointerEvents = 'none';
-    
+
     setTimeout(() => {
         tile1.element.remove();
         tile2.element.remove();
     }, 300);
-    
+
     tilesRemaining -= 2;
     tilesCountDisplay.textContent = tilesRemaining;
-    
+
     updateBlockedState();
     checkGameState();
 }
@@ -341,15 +342,15 @@ function isBlocked(tile) {
 
 function updateBlockedState() {
     let freePairs = new Map();
-    
+
     board.forEach(tile => {
         if (!tile.active) return;
-        
+
         if (isBlocked(tile)) {
             tile.element.classList.add('blocked');
         } else {
             tile.element.classList.remove('blocked');
-            
+
             // Track available pairs to check for game over
             if (!freePairs.has(tile.symbol)) {
                 freePairs.set(tile.symbol, 0);
@@ -357,7 +358,7 @@ function updateBlockedState() {
             freePairs.set(tile.symbol, freePairs.get(tile.symbol) + 1);
         }
     });
-    
+
     // Return true if there are available moves
     return Array.from(freePairs.values()).some(count => count >= 2);
 }
@@ -367,7 +368,7 @@ function checkGameState() {
         showModal('MAGNIFICENT YOU WON!', 'You have cleared the board and found balance.');
         return;
     }
-    
+
     const hasMoves = updateBlockedState();
     if (!hasMoves) {
         showModal('GAME OVER!', 'No more valid moves remain. The path is blocked.');
@@ -382,13 +383,13 @@ function showModal(title, message) {
 
 function showHint() {
     if (isAnimating) return;
-    
+
     // Clear any existing hints
     board.forEach(t => t.element.classList.remove('hint'));
-    
+
     // Find all currently active and unblocked tiles
     const freeTiles = board.filter(t => t.active && !t.element.classList.contains('blocked'));
-    
+
     // Find a matching pair
     for (let i = 0; i < freeTiles.length; i++) {
         for (let j = i + 1; j < freeTiles.length; j++) {
@@ -396,10 +397,10 @@ function showHint() {
                 // Found a match!
                 const t1 = freeTiles[i].element;
                 const t2 = freeTiles[j].element;
-                
+
                 t1.classList.add('hint');
                 t2.classList.add('hint');
-                
+
                 return; // Stop after finding one hint
             }
         }
