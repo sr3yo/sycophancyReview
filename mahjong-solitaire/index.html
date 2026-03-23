@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahjong Solitaire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Single wrapper: everything inside here gets scaled together -->
+    <div class="game-wrapper" id="game-wrapper">
+        <header>
+            <h1>Mahjong Solitaire</h1>
+        </header>
+
+        <div class="game-area">
+            <main class="game-container">
+                <div id="game-board"></div>
+            </main>
+
+            <div class="ui-panel">
+                <div class="stat-box">
+                    <span class="stat-label">Tiles Left</span>
+                    <span class="stat-value" id="tiles-count">36</span>
+                </div>
+                <button id="how-to-play-btn" class="action-btn info">How to Play</button>
+                <button id="hint-btn" class="action-btn">Hint</button>
+                <button id="restart-btn" class="action-btn restart">Restart Game</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modal-title">Game Over</h2>
+            <p id="modal-message">No more moves available.</p>
+            <button id="modal-restart-btn">Play Again</button>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="instructions-modal" class="modal hidden">
+        <div class="modal-content instructions">
+            <h2>How to Play</h2>
+            <div class="rules-text">
+                <p>Welcome to Mahjong Solitaire!</p>
+                <ul>
+                    <li><strong>The Goal:</strong> Clear the entire board by matching pairs of identical tiles.</li>
+                    <li><strong>How to Match:</strong> Click on two tiles that have the exact same symbol and color.</li>
+                    <li><strong>The Catch:</strong> You can only select "Free" tiles. A tile is Free if it has no tiles sitting on top of it, and if it is not blocked on <em>both</em> the left and right sides.</li>
+                    <li>Disabled tiles will look darker and cannot be clicked until you free them up.</li>
+                </ul>
+            </div>
+            <button id="close-instructions-btn">Got it! Let's Play</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
